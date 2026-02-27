@@ -1,0 +1,2206 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Home Loan Manager</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    /* ── TOKENS ── */
+    :root {
+      --primary: #0d9488;
+      --primary-dark: #0f766e;
+      --primary-light: #ccfbf1;
+      --primary-xlight: #f0fdfa;
+      --accent: #6366f1;
+      --accent-light: #eef2ff;
+      --success: #10b981;
+      --success-light: #ecfdf5;
+      --warning: #f59e0b;
+      --warning-light: #fffbeb;
+      --danger: #ef4444;
+      --danger-light: #fef2f2;
+      --purple: #8b5cf6;
+      --bg: #f8fafc;
+      --card: #fff;
+      --border: #e2e8f0;
+      --border-light: #f1f5f9;
+      --text: #0f172a;
+      --muted: #64748b;
+      --light: #94a3b8;
+      --input-bg: #fff;
+      --shadow: 0 1px 3px rgba(0, 0, 0, .08), 0 1px 2px rgba(0, 0, 0, .05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, .07);
+      --r: 10px;
+      --r-sm: 6px;
+      --sidebar-w: 310px;
+      --header-h: 60px;
+      --mob-nav: 56px;
+    }
+
+    [data-theme="dark"] {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --border: #334155;
+      --border-light: #1e293b;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --light: #64748b;
+      --input-bg: #0f172a;
+      --primary-xlight: #0f2a28;
+      --primary-light: #134e4a;
+      --accent-light: #1e1b4b;
+      --success-light: #052e16;
+      --warning-light: #1c1002;
+      --danger-light: #1c0a0a;
+      --shadow: 0 1px 3px rgba(0, 0, 0, .3);
+      --shadow-md: 0 4px 6px rgba(0, 0, 0, .3);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.5;
+      transition: background .2s, color .2s;
+    }
+
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 3px;
+    }
+
+    /* HEADER */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: var(--header-h);
+      z-index: 200;
+      background: linear-gradient(135deg, #134e4a 0%, #0d9488 60%, #0891b2 100%);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 10px;
+      box-shadow: var(--shadow-md);
+    }
+
+    .hdr-toggle {
+      background: rgba(255, 255, 255, .15);
+      border: none;
+      color: #fff;
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .15s;
+    }
+
+    .hdr-toggle:hover {
+      background: rgba(255, 255, 255, .25);
+    }
+
+    .hdr-title h1 {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .hdr-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
+    }
+
+    .hdr-badges {
+      display: flex;
+      gap: 8px;
+    }
+
+    .hdr-badge {
+      background: rgba(255, 255, 255, .15);
+      border: 1px solid rgba(255, 255, 255, .25);
+      border-radius: 16px;
+      padding: 4px 12px;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .hdr-badge .bl {
+      font-size: 10px;
+      opacity: .75;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .hdr-badge .bv {
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .hdr-badge .bs {
+      font-size: 10px;
+      opacity: .75;
+    }
+
+    .dark-btn {
+      background: rgba(255, 255, 255, .15);
+      border: 1px solid rgba(255, 255, 255, .25);
+      color: #fff;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .15s;
+      flex-shrink: 0;
+    }
+
+    .dark-btn:hover {
+      background: rgba(255, 255, 255, .25);
+    }
+
+    /* LAYOUT */
+    .app-body {
+      display: flex;
+      height: calc(100vh - var(--header-h));
+      margin-top: var(--header-h);
+      overflow: hidden;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: var(--sidebar-w);
+      min-width: var(--sidebar-w);
+      background: var(--card);
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      flex-shrink: 0;
+      transition: width .25s, min-width .25s, opacity .2s;
+    }
+
+    .sidebar.collapsed {
+      width: 0;
+      min-width: 0;
+      opacity: 0;
+      overflow: hidden;
+    }
+
+    .ss {
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .ss-hdr {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      cursor: pointer;
+      user-select: none;
+      transition: background .15s;
+    }
+
+    .ss-hdr:hover {
+      background: var(--border-light);
+    }
+
+    .ss-hdr h2 {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: var(--primary);
+    }
+
+    .ss-chev {
+      font-size: 11px;
+      color: var(--muted);
+      transition: transform .2s;
+    }
+
+    .ss-chev.open {
+      transform: rotate(180deg);
+    }
+
+    .ss-body {
+      padding: 0 16px 14px;
+    }
+
+    /* FORMS */
+    .form-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .fg {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-width: 80px;
+    }
+
+    .fg label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 3px;
+    }
+
+    .fg input,
+    .fg select {
+      padding: 7px 10px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-sm);
+      font-size: 13px;
+      font-family: 'Inter', sans-serif;
+      color: var(--text);
+      background: var(--input-bg);
+      transition: border-color .15s, box-shadow .15s;
+    }
+
+    .fg input:focus,
+    .fg select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(13, 148, 136, .12);
+    }
+
+    /* BUTTONS */
+    .btn {
+      padding: 8px 14px;
+      border: none;
+      border-radius: var(--r-sm);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: all .15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      justify-content: center;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--primary);
+      border: 1.5px solid var(--primary);
+    }
+
+    .btn-outline:hover {
+      background: var(--primary-xlight);
+    }
+
+    .btn-accent {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn-accent:hover {
+      background: #4f46e5;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--danger);
+      border: 1.5px solid var(--border);
+      padding: 4px 8px;
+      font-size: 11px;
+      border-radius: 4px;
+    }
+
+    .btn-ghost:hover {
+      background: var(--danger-light);
+      border-color: var(--danger);
+    }
+
+    .btn-icon {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 3px 6px;
+      font-size: 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: all .15s;
+    }
+
+    .btn-icon:hover {
+      color: var(--primary);
+      border-color: var(--primary);
+      background: var(--primary-xlight);
+    }
+
+    .btn-full {
+      width: 100%;
+    }
+
+    .btn-data {
+      background: rgba(255, 255, 255, .12);
+      border: 1px solid rgba(255, 255, 255, .22);
+      color: #fff;
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: background .15s;
+    }
+
+    .btn-data:hover {
+      background: rgba(255, 255, 255, .22);
+    }
+
+    /* EVENT LIST */
+    .ev-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .ev-item {
+      background: var(--bg);
+      border-radius: var(--r-sm);
+      padding: 9px 12px;
+      border-left: 3px solid var(--primary);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      animation: fadeIn .2s ease;
+    }
+
+    .ev-item.pp {
+      border-color: var(--success);
+    }
+
+    .ev-item.fee {
+      border-color: var(--warning);
+    }
+
+    .ev-title {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .ev-meta {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 1px;
+    }
+
+    .ev-note {
+      font-size: 11px;
+      color: var(--light);
+      font-style: italic;
+      margin-top: 1px;
+    }
+
+    .no-ev {
+      color: var(--light);
+      font-size: 12px;
+      padding: 6px 0;
+      font-style: italic;
+    }
+
+    .ev-actions {
+      display: flex;
+      gap: 4px;
+      flex-shrink: 0;
+      margin-left: 8px;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-4px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* INLINE EDIT */
+    .ev-edit-form {
+      background: var(--card);
+      border: 1.5px solid var(--primary);
+      border-radius: var(--r-sm);
+      padding: 10px;
+      margin-top: 6px;
+      display: none;
+    }
+
+    .ev-edit-form.open {
+      display: block;
+      animation: fadeIn .15s ease;
+    }
+
+    /* MAIN */
+    .main {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 16px;
+    }
+
+    /* KPI */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .kpi {
+      background: var(--card);
+      border-radius: var(--r);
+      padding: 14px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .kpi::before {
+      content: '';
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      opacity: .07;
+    }
+
+    .kpi.teal::before {
+      background: var(--primary);
+    }
+
+    .kpi.green::before {
+      background: var(--success);
+    }
+
+    .kpi.orange::before {
+      background: var(--warning);
+    }
+
+    .kpi.purple::before {
+      background: var(--purple);
+    }
+
+    .kpi.indigo::before {
+      background: var(--accent);
+    }
+
+    .kpi label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .kpi .val {
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .kpi.teal .val {
+      color: var(--primary);
+    }
+
+    .kpi.green .val {
+      color: var(--success);
+    }
+
+    .kpi.orange .val {
+      color: var(--warning);
+    }
+
+    .kpi.purple .val {
+      color: var(--purple);
+    }
+
+    .kpi.indigo .val {
+      color: var(--accent);
+    }
+
+    .kpi .sub {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    /* PROGRESS */
+    .prog-card {
+      background: var(--card);
+      border-radius: var(--r);
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      margin-bottom: 14px;
+    }
+
+    .prog-hdr {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .prog-hdr h3 {
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .prog-bar {
+      height: 10px;
+      background: var(--border);
+      border-radius: 5px;
+      overflow: hidden;
+      margin-bottom: 6px;
+    }
+
+    .prog-fill {
+      height: 100%;
+      border-radius: 5px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      transition: width .6s ease;
+    }
+
+    .prog-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* CHART */
+    .chart-card {
+      background: var(--card);
+      border-radius: var(--r);
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      margin-bottom: 14px;
+    }
+
+    .chart-hdr {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chart-hdr h3 {
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .chart-actions {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .chart-toggles {
+      display: flex;
+      gap: 5px;
+    }
+
+    .ct {
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1.5px solid var(--border);
+      background: var(--card);
+      color: var(--muted);
+      transition: all .15s;
+    }
+
+    .ct.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    .chart-wrap {
+      position: relative;
+      height: 220px;
+    }
+
+    .save-chart-btn {
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1.5px solid var(--border);
+      background: var(--card);
+      color: var(--muted);
+      font-family: 'Inter', sans-serif;
+      transition: all .15s;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .save-chart-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-xlight);
+    }
+
+    /* WHAT-IF */
+    .wi-card {
+      background: linear-gradient(135deg, var(--accent-light), var(--primary-xlight));
+      border-radius: var(--r);
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      margin-bottom: 14px;
+    }
+
+    .wi-card h3 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+
+    .wi-card h3 span {
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--muted);
+    }
+
+    .wi-inputs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: flex-end;
+    }
+
+    .wi-inputs .fg {
+      flex: 1;
+      min-width: 110px;
+    }
+
+    .wi-result {
+      margin-top: 12px;
+      background: var(--card);
+      border-radius: var(--r-sm);
+      padding: 12px;
+      border: 1px solid var(--border);
+      display: none;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 10px;
+    }
+
+    .wi-result.show {
+      display: grid;
+    }
+
+    .wi-item label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .wi-val {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .wi-val.good {
+      color: var(--success);
+    }
+
+    .wi-val.neu {
+      color: var(--primary);
+    }
+
+    /* PREPAY INSIGHT */
+    .insight-card {
+      background: var(--card);
+      border-radius: var(--r);
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      margin-bottom: 14px;
+      border-left: 4px solid var(--success);
+    }
+
+    .insight-card h3 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--success);
+      margin-bottom: 10px;
+    }
+
+    .insight-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 8px;
+    }
+
+    .insight-item {
+      background: var(--bg);
+      border-radius: var(--r-sm);
+      padding: 10px 12px;
+    }
+
+    .insight-item .il {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+
+    .insight-item .iv {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--success);
+    }
+
+    .insight-item .is {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .insight-best {
+      background: var(--success-light);
+      border: 1.5px solid var(--success);
+    }
+
+    .insight-best .iv {
+      color: var(--success);
+    }
+
+    /* TABS */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 14px;
+      background: var(--card);
+      border-radius: var(--r-sm);
+      padding: 4px;
+      border: 1px solid var(--border);
+      width: fit-content;
+    }
+
+    .tab {
+      padding: 7px 16px;
+      border-radius: 5px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      color: var(--muted);
+      transition: all .15s;
+    }
+
+    .tab.active {
+      background: var(--primary);
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .view {
+      display: none;
+    }
+
+    .view.active {
+      display: block;
+    }
+
+    /* TABLE */
+    .tbl-card {
+      background: var(--card);
+      border-radius: var(--r);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .tbl-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+
+    .tbl-bar h3 {
+      font-size: 13px;
+      font-weight: 700;
+      flex: 1;
+    }
+
+    .tbl-scroll {
+      overflow-x: auto;
+      max-height: 480px;
+      overflow-y: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      min-width: 860px;
+    }
+
+    thead th {
+      background: var(--bg);
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      padding: 9px 12px;
+      text-align: right;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      border-bottom: 2px solid var(--border);
+      white-space: nowrap;
+    }
+
+    thead th:first-child {
+      text-align: left;
+    }
+
+    td {
+      padding: 8px 12px;
+      text-align: right;
+      border-bottom: 1px solid var(--border-light);
+      white-space: nowrap;
+    }
+
+    td:first-child {
+      text-align: left;
+    }
+
+    tbody tr:hover td {
+      background: var(--border-light);
+    }
+
+    tr.is-today td {
+      background: var(--primary-xlight);
+      font-weight: 500;
+    }
+
+    tr.is-today td:first-child {
+      border-left: 3px solid var(--primary);
+    }
+
+    tr.is-event td {
+      background: var(--warning-light);
+    }
+
+    tr.is-prepay td {
+      background: var(--success-light);
+    }
+
+    tr.is-past td {
+      color: var(--light);
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .pill-rate {
+      background: #e0f2fe;
+      color: #0369a1;
+    }
+
+    .pill-prepay {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .pill-fee {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .pill-now {
+      background: var(--primary-light);
+      color: var(--primary-dark);
+    }
+
+    [data-theme="dark"] .pill-rate {
+      background: #0c2d3f;
+      color: #7dd3fc;
+    }
+
+    [data-theme="dark"] .pill-prepay {
+      background: #052e16;
+      color: #6ee7b7;
+    }
+
+    [data-theme="dark"] .pill-fee {
+      background: #1c1002;
+      color: #fcd34d;
+    }
+
+    [data-theme="dark"] .pill-now {
+      background: #134e4a;
+      color: #5eead4;
+    }
+
+    .search-inp {
+      padding: 6px 10px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-sm);
+      font-size: 12px;
+      font-family: 'Inter', sans-serif;
+      background: var(--input-bg);
+      color: var(--text);
+      width: 88px;
+    }
+
+    .search-inp:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .flt-sel {
+      padding: 6px 8px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-sm);
+      font-size: 12px;
+      font-family: 'Inter', sans-serif;
+      background: var(--input-bg);
+      color: var(--text);
+    }
+
+    /* DATA TOOLBAR */
+    .data-bar {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      padding: 10px 16px 0;
+    }
+
+    .data-bar-label {
+      font-size: 11px;
+      color: var(--muted);
+      margin-right: 2px;
+    }
+
+    /* ═══ DESKTOP ═══ */
+    @media(min-width:769px) {
+      body {
+        overflow: hidden;
+      }
+
+      .mob-nav {
+        display: none !important;
+      }
+
+      #pg-dashboard {
+        display: block !important;
+      }
+
+      #pg-schedule {
+        display: block !important;
+      }
+
+      #pg-settings {
+        display: none !important;
+      }
+    }
+
+    /* ═══ MOBILE ═══ */
+    @media(max-width:768px) {
+      body {
+        overflow: auto;
+      }
+
+      .app-body {
+        flex-direction: column;
+        height: auto;
+        overflow: visible;
+      }
+
+      .sidebar {
+        display: none !important;
+      }
+
+      .hdr-toggle {
+        display: none !important;
+      }
+
+      .main {
+        padding: 10px;
+        overflow: visible;
+      }
+
+      .kpi-row {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+      }
+
+      .kpi .val {
+        font-size: 17px;
+      }
+
+      .kpi {
+        padding: 12px;
+      }
+
+      .chart-wrap {
+        height: 180px;
+      }
+
+      .wi-inputs .fg {
+        min-width: 100%;
+      }
+
+      .tabs {
+        width: 100%;
+      }
+
+      .tab {
+        flex: 1;
+        text-align: center;
+        font-size: 12px;
+        padding: 7px 6px;
+      }
+
+      .tbl-scroll {
+        max-height: 380px;
+      }
+
+      .hdr-badge .bs {
+        display: none;
+      }
+
+      .mob-page {
+        display: none;
+      }
+
+      .mob-page.active {
+        display: block;
+        padding-bottom: calc(var(--mob-nav) + 12px);
+      }
+
+      .mob-nav {
+        display: flex;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: var(--mob-nav);
+        background: var(--card);
+        border-top: 1px solid var(--border);
+        z-index: 200;
+        box-shadow: 0 -2px 8px rgba(0, 0, 0, .1);
+      }
+
+      .mob-nav-btn {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 3px;
+        cursor: pointer;
+        border: none;
+        background: transparent;
+        color: var(--muted);
+        font-family: 'Inter', sans-serif;
+        font-size: 10px;
+        font-weight: 500;
+        padding: 6px 4px;
+        transition: color .15s;
+      }
+
+      .mob-nav-btn .icon {
+        font-size: 18px;
+        line-height: 1;
+      }
+
+      .mob-nav-btn.active {
+        color: var(--primary);
+      }
+
+      .mob-sec {
+        background: var(--card);
+        border-radius: var(--r);
+        border: 1px solid var(--border);
+        margin-bottom: 12px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+      }
+
+      .mob-sec-hdr {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 13px 16px;
+        cursor: pointer;
+        user-select: none;
+      }
+
+      .mob-sec-hdr h3 {
+        font-size: 14px;
+        font-weight: 700;
+      }
+
+      .mob-sec-body {
+        padding: 0 16px 16px;
+      }
+
+      .data-bar {
+        flex-wrap: wrap;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <button class="hdr-toggle" onclick="toggleSidebar()">&#9776;</button>
+    <div class="hdr-title">
+      <h1>Home Loan Manager</h1>
+    </div>
+    <div class="hdr-right">
+      <div class="hdr-badges">
+        <div class="hdr-badge">
+          <div class="bl">Next EMI</div>
+          <div class="bv" id="hdrEmiDate">–</div>
+          <div class="bs" id="hdrEmiDays"></div>
+        </div>
+        <div class="hdr-badge">
+          <div class="bl">Current Rate</div>
+          <div class="bv" id="hdrRate">–</div>
+          <div class="bs">p.a.</div>
+        </div>
+      </div>
+      <button class="dark-btn" onclick="toggleDark()" id="darkBtn" title="Toggle dark mode">&#9790;</button>
+    </div>
+  </header>
+
+  <div class="app-body">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar" id="sidebar">
+      <div class="data-bar">
+        <span class="data-bar-label">Data:</span>
+        <button class="btn btn-outline" style="padding:4px 10px;font-size:11px;" onclick="exportJSON()">Export
+          JSON</button>
+        <button class="btn btn-outline" style="padding:4px 10px;font-size:11px;"
+          onclick="document.getElementById('importFile').click()">Import JSON</button>
+        <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(event)">
+        <button class="btn btn-ghost" style="color:var(--muted);" onclick="clearStorage()">Reset</button>
+      </div>
+
+
+
+      <div class="ss" style="margin-top:8px;">
+        <div class="ss-hdr" onclick="toggleSS(this)">
+          <h2>Loan Details</h2><span class="ss-chev open">▼</span>
+        </div>
+        <div class="ss-body">
+          <div class="form-row">
+            <div class="fg"><label>Loan Amount (Rs.)</label><input type="number" id="loanAmount" value="5000000"
+                step="100000"></div>
+          </div>
+          <div class="form-row">
+            <div class="fg"><label>Starting Rate (%)</label><input type="number" id="initRate" value="8.60" step="0.05">
+            </div>
+            <div class="fg"><label>Tenure (months)</label><input type="number" id="tenure" value="180"></div>
+          </div>
+          <div class="form-row">
+            <div class="fg"><label>First EMI Date</label><input type="date" id="startDate" value="2025-03-05"></div>
+            <div class="fg"><label>On Change</label>
+              <select id="strategy">
+                <option value="tenure">Reduce Tenure</option>
+                <option value="emi">Reduce EMI</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn btn-primary btn-full" onclick="recalculate()">Recalculate</button>
+        </div>
+      </div>
+
+      <div class="ss">
+        <div class="ss-hdr" onclick="toggleSS(this)">
+          <h2>Rate Changes</h2><span class="ss-chev open">▼</span>
+        </div>
+        <div class="ss-body">
+          <div class="form-row">
+            <div class="fg"><label>Date</label><input type="date" id="rcDate"></div>
+            <div class="fg"><label>New Rate (%)</label><input type="number" id="rcRate" step="0.05"
+                placeholder="e.g. 7.5"></div>
+          </div>
+          <div class="form-row">
+            <div class="fg"><label>Note</label><input type="text" id="rcNote" placeholder="e.g. Repo rate cut by RBI">
+            </div>
+          </div>
+          <button class="btn btn-primary btn-full" onclick="addRC()">+ Add Rate Change</button>
+          <div class="ev-list" id="rcList"></div>
+        </div>
+      </div>
+
+      <div class="ss">
+        <div class="ss-hdr" onclick="toggleSS(this)">
+          <h2>Prepayments</h2><span class="ss-chev open">▼</span>
+        </div>
+        <div class="ss-body">
+          <div class="form-row">
+            <div class="fg"><label>Date</label><input type="date" id="ppDate"></div>
+            <div class="fg"><label>Principal (Rs.)</label><input type="number" id="ppAmount" step="10000"></div>
+          </div>
+          <div class="form-row">
+            <div class="fg"><label>Extra Interest (Rs.)</label><input type="number" id="ppInterest" step="100"
+                placeholder="Interest till date"></div>
+            <div class="fg"><label>Note</label><input type="text" id="ppNote" placeholder="e.g. Bonus"></div>
+          </div>
+          <button class="btn btn-primary btn-full" onclick="addPP()">+ Add Prepayment</button>
+          <div class="ev-list" id="ppList"></div>
+        </div>
+      </div>
+
+      <div class="ss">
+        <div class="ss-hdr" onclick="toggleSS(this)">
+          <h2>Fees & Charges</h2><span class="ss-chev open">▼</span>
+        </div>
+        <div class="ss-body">
+          <div class="form-row">
+            <div class="fg"><label>Date</label><input type="date" id="feDate"></div>
+            <div class="fg"><label>Amount (Rs.)</label><input type="number" id="feAmount" step="100"></div>
+          </div>
+          <div class="form-row">
+            <div class="fg"><label>Description</label><input type="text" id="feDesc"
+                placeholder="e.g. ROI conversion fee"></div>
+          </div>
+          <button class="btn btn-primary btn-full" onclick="addFee()">+ Add Fee</button>
+          <div class="ev-list" id="feList"></div>
+        </div>
+      </div>
+    </div><!-- /sidebar -->
+
+    <!-- MAIN -->
+    <div class="main">
+
+      <!-- PAGE: Dashboard -->
+      <div class="mob-page active" id="pg-dashboard">
+
+        <div class="kpi-row">
+          <div class="kpi teal"><label>Outstanding</label>
+            <div class="val" id="kBal">–</div>
+            <div class="sub" id="kBalSub"></div>
+          </div>
+          <div class="kpi green"><label>Principal Paid</label>
+            <div class="val" id="kPrin">–</div>
+            <div class="sub" id="kPrinSub"></div>
+          </div>
+          <div class="kpi orange"><label>Interest Paid</label>
+            <div class="val" id="kInt">–</div>
+            <div class="sub" id="kIntSub"></div>
+          </div>
+          <div class="kpi purple"><label>Payoff Date</label>
+            <div class="val" id="kPayoff" style="font-size:16px">–</div>
+            <div class="sub" id="kPayoffSub"></div>
+          </div>
+          <div class="kpi indigo"><label>Interest Saved</label>
+            <div class="val" id="kSaved">–</div>
+            <div class="sub" id="kSavedSub"></div>
+          </div>
+        </div>
+
+        <div class="prog-card">
+          <div class="prog-hdr">
+            <h3>Repayment Progress</h3>
+            <span id="progLabel" style="font-size:12px;font-weight:700;color:var(--primary)"></span>
+          </div>
+          <div class="prog-bar">
+            <div class="prog-fill" id="progFill" style="width:0%"></div>
+          </div>
+          <div class="prog-labels"><span id="pStart"></span><span id="pMid"
+              style="color:var(--primary);font-weight:600"></span><span id="pEnd"></span></div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-hdr">
+            <h3>Balance Over Time</h3>
+            <div class="chart-actions">
+              <div class="chart-toggles">
+                <div class="ct active" onclick="setCM('balance',this)">Balance</div>
+                <div class="ct" onclick="setCM('split',this)">EMI Split</div>
+                <div class="ct" onclick="setCM('cum',this)">Cumulative</div>
+              </div>
+              <button class="save-chart-btn" onclick="saveChartImage()" title="Save chart as image">&#128247;
+                Save</button>
+            </div>
+          </div>
+          <div class="chart-wrap"><canvas id="chart1"></canvas></div>
+        </div>
+
+        <!-- Best time to prepay -->
+        <div class="insight-card" id="insightCard">
+          <h3>Best Time to Prepay</h3>
+          <div class="insight-row" id="insightRow"></div>
+          <div style="font-size:11px;color:var(--muted);margin-top:8px;" id="insightNote"></div>
+        </div>
+
+        <div class="wi-card">
+          <h3>What-If Simulator <span>(simulation only — does not affect your actual schedule)</span></h3>
+          <div class="wi-inputs">
+            <div class="fg"><label>Prepay Amount (Rs.)</label><input type="number" id="wiAmt" value="500000"
+                step="50000"></div>
+            <div class="fg"><label>In Month</label><input type="month" id="wiDate" value="2026-03"></div>
+            <div class="fg"><label>New Rate (%) — optional</label><input type="number" id="wiRate" step="0.1"
+                placeholder="Leave blank if none"></div>
+            <div style="display:flex;gap:6px;align-items:flex-end;flex-wrap:wrap;">
+              <button class="btn btn-accent" onclick="runWI()">Simulate</button>
+              <button class="btn btn-outline" onclick="clearWI()">Clear</button>
+            </div>
+          </div>
+          <div class="wi-result" id="wiResult">
+            <div class="wi-item"><label>New Payoff</label>
+              <div class="wi-val neu" id="wiPayoff">–</div>
+            </div>
+            <div class="wi-item"><label>Months Saved</label>
+              <div class="wi-val good" id="wiMonths">–</div>
+            </div>
+            <div class="wi-item"><label>Interest Saved</label>
+              <div class="wi-val good" id="wiSaved">–</div>
+            </div>
+            <div class="wi-item"><label>Balance After</label>
+              <div class="wi-val neu" id="wiBalAfter">–</div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /pg-dashboard -->
+
+      <!-- PAGE: Schedule -->
+      <div class="mob-page" id="pg-schedule">
+        <div class="tabs">
+          <div class="tab active" onclick="switchTab('monthly',this)">Monthly</div>
+          <div class="tab" onclick="switchTab('yearly',this)">Yearly</div>
+        </div>
+        <div class="view active" id="view-monthly">
+          <div class="tbl-card">
+            <div class="tbl-bar">
+              <h3>Amortization Schedule</h3>
+              <input type="text" class="search-inp" placeholder="Jump to year" onchange="jumpYear(this.value)">
+              <select class="flt-sel" id="fltView" onchange="applyFilter()">
+                <option value="all">All months</option>
+                <option value="future">Remaining</option>
+                <option value="past">Paid</option>
+                <option value="events">Events only</option>
+              </select>
+              <button class="btn btn-outline" style="padding:6px 10px;font-size:12px;" onclick="exportCSV()">Export
+                CSV</button>
+            </div>
+            <div class="tbl-scroll">
+              <div id="tblContainer"></div>
+            </div>
+          </div>
+        </div>
+        <div class="view" id="view-yearly">
+          <div class="tbl-card">
+            <div class="tbl-bar">
+              <h3>Year-by-Year Summary</h3>
+            </div>
+            <div class="tbl-scroll">
+              <div id="yrContainer"></div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /pg-schedule -->
+
+      <!-- PAGE: Settings (mobile only) -->
+      <div class="mob-page" id="pg-settings">
+
+        <div class="mob-sec">
+          <div class="mob-sec-hdr" onclick="toggleMobSec(this)">
+            <h3>Data</h3><span>▼</span>
+          </div>
+          <div class="mob-sec-body" style="padding-top:10px;">
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button class="btn btn-outline btn-full" onclick="exportJSON()">Export JSON</button>
+              <button class="btn btn-outline btn-full" onclick="document.getElementById('importFile').click()">Import
+                JSON</button>
+              <button class="btn btn-ghost btn-full" onclick="clearStorage()">Reset All Data</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="mob-sec">
+          <div class="mob-sec-hdr" onclick="toggleMobSec(this)">
+            <h3>Loan Details</h3><span>▼</span>
+          </div>
+          <div class="mob-sec-body">
+            <div class="form-row">
+              <div class="fg"><label>Loan Amount (Rs.)</label><input type="number" id="m_la" value="5000000"
+                  step="100000"></div>
+            </div>
+            <div class="form-row">
+              <div class="fg"><label>Starting Rate (%)</label><input type="number" id="m_ir" value="8.60" step="0.05">
+              </div>
+              <div class="fg"><label>Tenure (months)</label><input type="number" id="m_tn" value="180"></div>
+            </div>
+            <div class="form-row">
+              <div class="fg"><label>First EMI Date</label><input type="date" id="m_sd" value="2025-03-05"></div>
+              <div class="fg"><label>On Change</label><select id="m_st">
+                  <option value="tenure">Reduce Tenure</option>
+                  <option value="emi">Reduce EMI</option>
+                </select></div>
+            </div>
+            <button class="btn btn-primary btn-full" onclick="mobRecalc()">Recalculate</button>
+          </div>
+        </div>
+
+        <div class="mob-sec">
+          <div class="mob-sec-hdr" onclick="toggleMobSec(this)">
+            <h3>Rate Changes</h3><span>▼</span>
+          </div>
+          <div class="mob-sec-body">
+            <div class="form-row">
+              <div class="fg"><label>Date</label><input type="date" id="m_rcd"></div>
+              <div class="fg"><label>New Rate (%)</label><input type="number" id="m_rcr" step="0.05"
+                  placeholder="e.g. 7.5"></div>
+            </div>
+            <div class="form-row">
+              <div class="fg"><label>Note</label><input type="text" id="m_rcn" placeholder="e.g. Repo rate cut"></div>
+            </div>
+            <button class="btn btn-primary btn-full" onclick="mobAddRC()">+ Add Rate Change</button>
+            <div class="ev-list" id="m_rcList"></div>
+          </div>
+        </div>
+
+        <div class="mob-sec">
+          <div class="mob-sec-hdr" onclick="toggleMobSec(this)">
+            <h3>Prepayments</h3><span>▼</span>
+          </div>
+          <div class="mob-sec-body">
+            <div class="form-row">
+              <div class="fg"><label>Date</label><input type="date" id="m_ppd"></div>
+              <div class="fg"><label>Principal (Rs.)</label><input type="number" id="m_ppa" step="10000"></div>
+            </div>
+            <div class="form-row">
+              <div class="fg"><label>Extra Interest (Rs.)</label><input type="number" id="m_ppi" step="100"></div>
+              <div class="fg"><label>Note</label><input type="text" id="m_ppn"></div>
+            </div>
+            <button class="btn btn-primary btn-full" onclick="mobAddPP()">+ Add Prepayment</button>
+            <div class="ev-list" id="m_ppList"></div>
+          </div>
+        </div>
+
+        <div class="mob-sec" style="margin-bottom:80px;">
+          <div class="mob-sec-hdr" onclick="toggleMobSec(this)">
+            <h3>Fees & Charges</h3><span>▼</span>
+          </div>
+          <div class="mob-sec-body">
+            <div class="form-row">
+              <div class="fg"><label>Date</label><input type="date" id="m_fed"></div>
+              <div class="fg"><label>Amount (Rs.)</label><input type="number" id="m_fea" step="100"></div>
+            </div>
+            <div class="form-row">
+              <div class="fg"><label>Description</label><input type="text" id="m_fen"></div>
+            </div>
+            <button class="btn btn-primary btn-full" onclick="mobAddFee()">+ Add Fee</button>
+            <div class="ev-list" id="m_feList"></div>
+          </div>
+        </div>
+
+      </div><!-- /pg-settings -->
+
+    </div><!-- /main -->
+  </div><!-- /app-body -->
+
+  <nav class="mob-nav">
+    <button class="mob-nav-btn active" onclick="mobNav('dashboard',this)"><span
+        class="icon">&#9783;</span>Dashboard</button>
+    <button class="mob-nav-btn" onclick="mobNav('schedule',this)"><span class="icon">&#128203;</span>Schedule</button>
+    <button class="mob-nav-btn" onclick="mobNav('settings',this)"><span class="icon">&#9881;</span>Settings</button>
+  </nav>
+
+  <script>
+    // ══ STATE ══
+    let RC = [], PP = [], FE = [], sched = [], baseLine = 0, chartInst = null, CM = 'balance';
+    let _id = 100; const nid = () => ++_id;
+    const isMob = () => window.innerWidth <= 768;
+    const fmtINR = n => "Rs." + Math.round(n).toLocaleString("en-IN");
+    const fmtD = s => { const d = new Date(s + "T00:00:00"); return d.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }); };
+    const addM = (d, n) => { const r = new Date(d); r.setMonth(r.getMonth() + n); return r; };
+    const toYMD = d => d.toISOString().slice(0, 10);
+    const NOW = () => toYMD(new Date());
+    const NOWYM = () => NOW().slice(0, 7);
+    const v = id => { const el = document.getElementById(id); return el ? el.value : ""; };
+
+    // ══ DARK MODE ══
+    function toggleDark() {
+      const html = document.documentElement;
+      const isDark = html.getAttribute("data-theme") === "dark";
+      html.setAttribute("data-theme", isDark ? "light" : "dark");
+      document.getElementById("darkBtn").textContent = isDark ? "☾" : "☀";
+      localStorage.setItem("hlm_dark", isDark ? "0" : "1");
+    }
+    function initDark() {
+      if (localStorage.getItem("hlm_dark") === "1") {
+        document.documentElement.setAttribute("data-theme", "dark");
+        document.getElementById("darkBtn").textContent = "☀";
+      }
+    }
+
+    // ══ SIDEBAR ══
+    function toggleSidebar() { document.getElementById("sidebar").classList.toggle("collapsed"); }
+    function toggleSS(hdr) {
+      const body = hdr.nextElementSibling, ch = hdr.querySelector(".ss-chev");
+      const hidden = body.style.display === "none";
+      body.style.display = hidden ? "" : "none";
+      ch.classList.toggle("open", hidden);
+    }
+
+    // ══ MOBILE NAV ══
+    function mobNav(page, btn) {
+      document.querySelectorAll(".mob-page").forEach(p => p.classList.remove("active"));
+      document.querySelectorAll(".mob-nav-btn").forEach(b => b.classList.remove("active"));
+      document.getElementById("pg-" + page).classList.add("active");
+      btn.classList.add("active"); window.scrollTo(0, 0);
+    }
+    function toggleMobSec(hdr) {
+      const body = hdr.nextElementSibling, ch = hdr.querySelector("span:last-child");
+      const hidden = body.style.display === "none";
+      body.style.display = hidden ? "" : "none";
+      ch.textContent = hidden ? "▼" : "▶";
+    }
+
+    // ══ LOCALSTORAGE ══
+    const LS_KEY = "hlm_data_v1";
+    function saveStorage() {
+      const data = {
+        loanAmount: v("loanAmount"), initRate: v("initRate"), tenure: v("tenure"),
+        startDate: v("startDate"), strategy: v("strategy"),
+        RC, PP, FE, _id
+      };
+      localStorage.setItem(LS_KEY, JSON.stringify(data));
+    }
+    function loadStorage() {
+      const raw = localStorage.getItem(LS_KEY);
+      if (!raw) return false;
+      try {
+        const d = JSON.parse(raw);
+        document.getElementById("loanAmount").value = d.loanAmount || 5000000;
+        document.getElementById("initRate").value = d.initRate || 8.60;
+        document.getElementById("tenure").value = d.tenure || 180;
+        document.getElementById("startDate").value = d.startDate || "2025-03-05";
+        document.getElementById("strategy").value = d.strategy || "tenure";
+        RC = d.RC || []; PP = d.PP || []; FE = d.FE || []; _id = d._id || 100;
+        return true;
+      } catch (e) { return false; }
+    }
+    function exportJSON() {
+      const data = {
+        loanAmount: v("loanAmount"), initRate: v("initRate"), tenure: v("tenure"),
+        startDate: v("startDate"), strategy: v("strategy"), RC, PP, FE
+      };
+      const a = document.createElement("a");
+      a.href = "data:application/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
+      a.download = "home_loan_data.json"; a.click();
+      toast("Data exported as JSON");
+    }
+    function importJSON(evt) {
+      const file = evt.target.files[0]; if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        try {
+          const d = JSON.parse(e.target.result);
+          document.getElementById("loanAmount").value = d.loanAmount || 5000000;
+          document.getElementById("initRate").value = d.initRate || 8.60;
+          document.getElementById("tenure").value = d.tenure || 180;
+          document.getElementById("startDate").value = d.startDate || "2025-03-05";
+          document.getElementById("strategy").value = d.strategy || "tenure";
+          RC = d.RC || []; PP = d.PP || []; FE = d.FE || [];
+          syncMobFromDesktop(); saveStorage(); renderLists(); recalculate();
+          toast("Data imported successfully");
+        } catch (err) { toast("Invalid JSON file", "err"); }
+      };
+      reader.readAsText(file);
+      evt.target.value = "";
+    }
+    function clearStorage() {
+      if (!confirm("Reset all data and load defaults?")) return;
+      localStorage.removeItem(LS_KEY); loadDefaults();
+      toast("Reset to defaults");
+    }
+
+    // ══ DEFAULTS ══
+    function loadDefaults() {
+      document.getElementById("loanAmount").value = 5000000;
+      document.getElementById("initRate").value = 8.60;
+      document.getElementById("tenure").value = 180;
+      document.getElementById("startDate").value = "2025-03-05";
+      document.getElementById("strategy").value = "tenure";
+      RC = [
+        { id: 1, date: "2025-05-01", rate: 8.35, note: "Repo rate cut by RBI" },
+        { id: 2, date: "2025-07-01", rate: 7.85, note: "Repo rate cut by RBI" },
+        { id: 3, date: "2026-01-01", rate: 7.60, note: "Repo rate cut by RBI" },
+        { id: 4, date: "2026-02-01", rate: 7.20, note: "Manual conversion requested" }
+      ];
+      PP = [{ id: 5, date: "2025-11-12", principal: 500000, interest: 7411, note: "Lump-sum prepayment" }];
+      FE = [{ id: 6, date: "2026-01-21", amount: 3540, desc: "ROI conversion fee (incl. taxes)" }];
+      syncMobFromDesktop(); renderLists(); recalculate();
+    }
+
+    // ══ SYNC MOBILE ══
+    function syncMobFromDesktop() {
+      [["loanAmount", "m_la"], ["initRate", "m_ir"], ["tenure", "m_tn"], ["startDate", "m_sd"], ["strategy", "m_st"]]
+        .forEach(([d, m]) => { const de = document.getElementById(d), me = document.getElementById(m); if (de && me) me.value = de.value; });
+    }
+    function mobRecalc() {
+      [["m_la", "loanAmount"], ["m_ir", "initRate"], ["m_tn", "tenure"], ["m_sd", "startDate"], ["m_st", "strategy"]]
+        .forEach(([m, d]) => { const me = document.getElementById(m), de = document.getElementById(d); if (me && de) de.value = me.value; });
+      saveStorage(); recalculate();
+    }
+
+    // ══ ADD EVENTS ══
+    function _addRC(d, r, note) {
+      if (!d || isNaN(r) || r <= 0) return toast("Enter a valid date and rate", "err");
+      RC.push({ id: nid(), date: d, rate: r, note: note || "" });
+      RC.sort((a, b) => a.date.localeCompare(b.date));
+      saveStorage(); renderLists(); recalculate();
+    }
+    function addRC() { _addRC(v("rcDate"), parseFloat(v("rcRate")), v("rcNote"));["rcDate", "rcRate", "rcNote"].forEach(id => document.getElementById(id).value = ""); }
+    function mobAddRC() { _addRC(v("m_rcd"), parseFloat(v("m_rcr")), v("m_rcn"));["m_rcd", "m_rcr", "m_rcn"].forEach(id => document.getElementById(id).value = ""); }
+
+    function _addPP(d, a, i, note) {
+      if (!d || isNaN(a) || a <= 0) return toast("Enter a valid date and amount", "err");
+      PP.push({ id: nid(), date: d, principal: a, interest: i || 0, note: note || "" });
+      PP.sort((a, b) => a.date.localeCompare(b.date));
+      saveStorage(); renderLists(); recalculate();
+    }
+    function addPP() { _addPP(v("ppDate"), parseFloat(v("ppAmount")), parseFloat(v("ppInterest")), v("ppNote"));["ppDate", "ppAmount", "ppInterest", "ppNote"].forEach(id => document.getElementById(id).value = ""); }
+    function mobAddPP() { _addPP(v("m_ppd"), parseFloat(v("m_ppa")), parseFloat(v("m_ppi")), v("m_ppn"));["m_ppd", "m_ppa", "m_ppi", "m_ppn"].forEach(id => document.getElementById(id).value = ""); }
+
+    function _addFee(d, a, desc) {
+      if (!d || isNaN(a) || a <= 0) return toast("Enter a valid date and amount", "err");
+      FE.push({ id: nid(), date: d, amount: a, desc: desc || "Fee" });
+      FE.sort((a, b) => a.date.localeCompare(b.date));
+      saveStorage(); renderLists(); recalculate();
+    }
+    function addFee() { _addFee(v("feDate"), parseFloat(v("feAmount")), v("feDesc"));["feDate", "feAmount", "feDesc"].forEach(id => document.getElementById(id).value = ""); }
+    function mobAddFee() { _addFee(v("m_fed"), parseFloat(v("m_fea")), v("m_fen"));["m_fed", "m_fea", "m_fen"].forEach(id => document.getElementById(id).value = ""); }
+
+    function removeEv(type, id) {
+      if (type === "rc") RC = RC.filter(x => x.id !== id);
+      else if (type === "pp") PP = PP.filter(x => x.id !== id);
+      else if (type === "fe") FE = FE.filter(x => x.id !== id);
+      saveStorage(); renderLists(); recalculate();
+    }
+
+    // ══ INLINE EDIT ══
+    function editEv(type, id) {
+      const formId = `ef-${type}-${id}`;
+      // Close any other open edit forms
+      document.querySelectorAll(".ev-edit-form.open").forEach(f => { if (f.id !== formId) { f.classList.remove("open"); } });
+      const existing = document.getElementById(formId);
+      if (existing) { existing.classList.toggle("open"); return; }
+      let obj, fields = "";
+      if (type === "rc") {
+        obj = RC.find(x => x.id === id);
+        fields = `<div class="form-row">
+      <div class="fg"><label>Date</label><input type="date" id="ef_d_${id}" value="${obj.date}"></div>
+      <div class="fg"><label>Rate (%)</label><input type="number" step="0.05" id="ef_r_${id}" value="${obj.rate}"></div>
+    </div>
+    <div class="form-row"><div class="fg"><label>Note</label><input type="text" id="ef_n_${id}" value="${obj.note || ''}"></div></div>`;
+      } else if (type === "pp") {
+        obj = PP.find(x => x.id === id);
+        fields = `<div class="form-row">
+      <div class="fg"><label>Date</label><input type="date" id="ef_d_${id}" value="${obj.date}"></div>
+      <div class="fg"><label>Principal</label><input type="number" step="10000" id="ef_p_${id}" value="${obj.principal}"></div>
+    </div>
+    <div class="form-row">
+      <div class="fg"><label>Interest</label><input type="number" step="100" id="ef_i_${id}" value="${obj.interest || 0}"></div>
+      <div class="fg"><label>Note</label><input type="text" id="ef_n_${id}" value="${obj.note || ''}"></div>
+    </div>`;
+      } else {
+        obj = FE.find(x => x.id === id);
+        fields = `<div class="form-row">
+      <div class="fg"><label>Date</label><input type="date" id="ef_d_${id}" value="${obj.date}"></div>
+      <div class="fg"><label>Amount</label><input type="number" step="100" id="ef_a_${id}" value="${obj.amount}"></div>
+    </div>
+    <div class="form-row"><div class="fg"><label>Description</label><input type="text" id="ef_n_${id}" value="${obj.desc || ''}"></div></div>`;
+      }
+      const form = document.createElement("div");
+      form.className = "ev-edit-form open"; form.id = formId;
+      form.innerHTML = fields + `<div style="display:flex;gap:6px;margin-top:8px;">
+    <button class="btn btn-primary" style="padding:6px 12px;font-size:12px;" onclick="saveEdit('${type}',${id})">Save</button>
+    <button class="btn btn-outline" style="padding:6px 12px;font-size:12px;" onclick="document.getElementById('${formId}').classList.remove('open')">Cancel</button>
+  </div>`;
+      // Insert after the ev-item
+      const evItem = document.querySelector(`[data-ev-id="${type}-${id}"]`);
+      if (evItem) evItem.after(form);
+      // Also insert in mobile list
+      const mItem = document.querySelector(`[data-ev-id="m-${type}-${id}"]`);
+      if (mItem) {
+        const mForm = form.cloneNode(true); mForm.id = formId + "-m";
+        mItem.after(mForm);
+        mForm.querySelectorAll("button").forEach(btn => {
+          if (btn.textContent.trim() === "Save") btn.setAttribute("onclick", `saveEdit('${type}',${id})`);
+          else btn.setAttribute("onclick", `document.getElementById('${formId}-m').classList.remove('open')`);
+        });
+      }
+    }
+    function saveEdit(type, id) {
+      if (type === "rc") {
+        const obj = RC.find(x => x.id === id); if (!obj) return;
+        obj.date = document.getElementById(`ef_d_${id}`).value || obj.date;
+        obj.rate = parseFloat(document.getElementById(`ef_r_${id}`).value) || obj.rate;
+        obj.note = document.getElementById(`ef_n_${id}`).value;
+        RC.sort((a, b) => a.date.localeCompare(b.date));
+      } else if (type === "pp") {
+        const obj = PP.find(x => x.id === id); if (!obj) return;
+        obj.date = document.getElementById(`ef_d_${id}`).value || obj.date;
+        obj.principal = parseFloat(document.getElementById(`ef_p_${id}`).value) || obj.principal;
+        obj.interest = parseFloat(document.getElementById(`ef_i_${id}`).value) || 0;
+        obj.note = document.getElementById(`ef_n_${id}`).value;
+        PP.sort((a, b) => a.date.localeCompare(b.date));
+      } else {
+        const obj = FE.find(x => x.id === id); if (!obj) return;
+        obj.date = document.getElementById(`ef_d_${id}`).value || obj.date;
+        obj.amount = parseFloat(document.getElementById(`ef_a_${id}`).value) || obj.amount;
+        obj.desc = document.getElementById(`ef_n_${id}`).value;
+        FE.sort((a, b) => a.date.localeCompare(b.date));
+      }
+      saveStorage(); renderLists(); recalculate(); toast("Entry updated");
+    }
+
+    // ══ RENDER LISTS ══
+    function evHTML(type, arr, prefix = "") {
+      if (!arr.length) return `<p class="no-ev">None added yet</p>`;
+      return arr.map(x => {
+        let title = "", meta = "", note = "";
+        if (type === "rc") { title = `${x.rate}% p.a.`; meta = fmtD(x.date); note = x.note; }
+        else if (type === "pp") { title = fmtINR(x.principal) + (x.interest ? ` + ${fmtINR(x.interest)} int` : ""); meta = fmtD(x.date); note = x.note; }
+        else { title = fmtINR(x.amount); meta = `${fmtD(x.date)} — ${x.desc}`; }
+        const uid = prefix ? `m-${type}-${x.id}` : `${type}-${x.id}`;
+        return `<div class="ev-item ${type === 'pp' ? 'pp' : type === 'fe' ? 'fee' : ''}" data-ev-id="${uid}">
+      <div style="flex:1;min-width:0;">
+        <div class="ev-title">${title}</div>
+        <div class="ev-meta">${meta}</div>
+        ${note ? `<div class="ev-note">${note}</div>` : ""}
+      </div>
+      <div class="ev-actions">
+        <button class="btn-icon" onclick="editEv('${type}',${x.id})" title="Edit">&#9998;</button>
+        <button class="btn-icon" onclick="removeEv('${type}',${x.id})" title="Remove" style="color:var(--danger);">&#128465;</button>
+      </div>
+    </div>`;
+      }).join("");
+    }
+    function renderLists() {
+      document.getElementById("rcList").innerHTML = evHTML("rc", RC);
+      document.getElementById("ppList").innerHTML = evHTML("pp", PP);
+      document.getElementById("feList").innerHTML = evHTML("fe", FE);
+      document.getElementById("m_rcList").innerHTML = evHTML("rc", RC, "m");
+      document.getElementById("m_ppList").innerHTML = evHTML("pp", PP, "m");
+      document.getElementById("m_feList").innerHTML = evHTML("fe", FE, "m");
+    }
+
+    // ══ EMI ENGINE ══
+    function calcEMI(P, r, n) { if (r === 0) return P / n; return P * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1); }
+    function calcRem(bal, emi, r) { if (emi <= bal * r) return 999; return Math.ceil(-Math.log(1 - bal * r / emi) / Math.log(1 + r)); }
+
+    function buildSched(extraPP, extraRC) {
+      const P = parseFloat(document.getElementById("loanAmount").value);
+      const ir = parseFloat(document.getElementById("initRate").value);
+      const tn = parseInt(document.getElementById("tenure").value);
+      const sd = document.getElementById("startDate").value;
+      const strat = document.getElementById("strategy").value;
+      if (!P || !ir || !tn || !sd) return [];
+      const start = new Date(sd + "T00:00:00");
+      baseLine = calcEMI(P, ir / 100 / 12, tn) * tn - P;
+      const em = {};
+      const reg = (ym, t, o) => { if (!em[ym]) em[ym] = { rc: [], pp: [], fe: [] }; em[ym][t].push(o); };
+      [...RC, ...(extraRC || [])].forEach(r => reg(r.date.slice(0, 7), "rc", r));
+      [...PP, ...(extraPP || [])].forEach(p => reg(p.date.slice(0, 7), "pp", p));
+      FE.forEach(f => reg(f.date.slice(0, 7), "fe", f));
+      let bal = P, rate = ir, emi = calcEMI(P, ir / 100 / 12, tn), rem = tn, cumI = 0, cumP = 0;
+      const rows = [], td = NOW(), tdym = NOWYM();
+      for (let m = 0; m < 300 && bal > 1; m++) {
+        const dt = addM(start, m), ds = toYMD(dt), ym = ds.slice(0, 7);
+        const ev = em[ym] || { rc: [], pp: [], fe: [] }; const evN = [];
+        for (const rc of ev.rc) {
+          if (strat === "tenure") rem = calcRem(bal, emi, rc.rate / 100 / 12);
+          else emi = calcEMI(bal, rc.rate / 100 / 12, rem);
+          evN.push({ label: `Rate changed to ${rc.rate}%`, note: rc.note || "" });
+          rate = rc.rate;
+        }
+        const mr = rate / 100 / 12, interest = bal * mr;
+        let principal = emi - interest;
+        if (principal < 0) principal = 0; if (principal > bal) principal = bal;
+        bal -= principal; cumI += interest; cumP += principal; if (rem > 0) rem--;
+        const ppEvs = [], feEvs = [];
+        for (const pp of ev.pp) {
+          const ppP = Math.min(pp.principal, bal);
+          if (ppP > 0) {
+            bal -= ppP; cumP += ppP; cumI += pp.interest || 0;
+            if (strat === "tenure") rem = calcRem(bal, emi, rate / 100 / 12);
+            else emi = calcEMI(bal, rate / 100 / 12, rem);
+            ppEvs.push({ date: pp.date, principal: ppP, interest: pp.interest || 0, note: pp.note || "" });
+          }
+        }
+        for (const fe of ev.fe) feEvs.push({ amount: fe.amount, desc: fe.desc });
+        rows.push({
+          m: m + 1, ds, rate, open: bal + principal, emi: interest + principal, interest, principal,
+          close: bal, cumI, cumP, evN, ppEvs, feEvs, isPast: ds < td, isToday: ym === tdym
+        });
+        if (bal < 1) break;
+      }
+      return rows;
+    }
+
+    function recalculate() {
+      sched = buildSched();
+      updateHeader(); renderKPIs(); renderChart(); applyFilter(); renderYearly(); renderInsight();
+    }
+
+    // ══ HEADER ══
+    function updateHeader() {
+      const next = sched.find(r => r.ds >= NOW()); if (!next) return;
+      document.getElementById("hdrEmiDate").textContent = fmtD(next.ds);
+      const days = Math.ceil((new Date(next.ds + "T00:00:00") - new Date()) / 86400000);
+      document.getElementById("hdrEmiDays").textContent = days <= 0 ? "Today" : days === 1 ? "Tomorrow" : `in ${days} days`;
+      document.getElementById("hdrRate").textContent = next.rate.toFixed(2) + "%";
+    }
+
+    // ══ KPIs ══
+    function renderKPIs() {
+      const P = parseFloat(document.getElementById("loanAmount").value), tdym = NOWYM();
+      let balNow = P, pI = 0, pP = 0;
+      for (const r of sched) { if (r.ds.slice(0, 7) <= tdym) { balNow = r.close; pI = r.cumI; pP = r.cumP; } else break; }
+      const last = sched[sched.length - 1], totI = last ? last.cumI : baseLine, saved = Math.max(0, baseLine - totI), pct = Math.round(pP / P * 100);
+      const mLeft = sched.filter(r => r.ds >= NOW()).length, payoff = last ? new Date(last.ds + "T00:00:00") : new Date();
+      document.getElementById("kBal").textContent = fmtINR(balNow);
+      document.getElementById("kBalSub").textContent = `${Math.round(balNow / P * 100)}% of original`;
+      document.getElementById("kPrin").textContent = fmtINR(pP);
+      document.getElementById("kPrinSub").textContent = `${pct}% repaid`;
+      document.getElementById("kInt").textContent = fmtINR(pI);
+      document.getElementById("kIntSub").textContent = `Total est: ${fmtINR(totI)}`;
+      document.getElementById("kPayoff").textContent = payoff.toLocaleDateString("en-IN", { month: "short", year: "numeric" });
+      document.getElementById("kPayoffSub").textContent = `${mLeft} months remaining`;
+      document.getElementById("kSaved").textContent = fmtINR(saved);
+      document.getElementById("kSavedSub").textContent = saved > 0 ? "vs original schedule" : "Make prepayments to save";
+      document.getElementById("progLabel").textContent = `${pct}% repaid`;
+      document.getElementById("progFill").style.width = pct + "%";
+      const sd = document.getElementById("startDate").value;
+      document.getElementById("pStart").textContent = fmtD(sd);
+      document.getElementById("pMid").textContent = `Rs.${Math.round(pP / 100000)}L paid`;
+      document.getElementById("pEnd").textContent = payoff.toLocaleDateString("en-IN", { month: "short", year: "numeric" });
+    }
+
+    // ══ CHART ══
+    function setCM(mode, el) { CM = mode; document.querySelectorAll(".ct").forEach(t => t.classList.remove("active")); el.classList.add("active"); renderChart(); }
+    function renderChart() {
+      const ctx = document.getElementById("chart1").getContext("2d");
+      if (chartInst) { chartInst.destroy(); chartInst = null; }
+      if (!sched.length) return;
+      const rows = sched;
+      const labels = rows.map(r => { const d = new Date(r.ds + "T00:00:00"); return d.toLocaleDateString("en-IN", { month: "short", year: "2-digit" }); });
+      const P = parseFloat(document.getElementById("loanAmount").value);
+      const ir = parseFloat(document.getElementById("initRate").value) / 100 / 12;
+      const tn = parseInt(document.getElementById("tenure").value);
+      const baseEmi = calcEMI(P, ir, tn);
+      let datasets = [], chartType = "line", xO = {}, yO = {};
+      if (CM === "balance") {
+        const bal = rows.map(r => Math.round(r.close / 100000));
+        let ob = P; const orig = [Math.round(ob / 100000)];
+        for (let i = 1; i < rows.length; i++) { ob = Math.max(0, ob - (baseEmi - ob * ir)); orig.push(Math.round(ob / 100000)); }
+        datasets = [
+          { label: "Your Balance (Rs.L)", data: bal, borderColor: "#0d9488", backgroundColor: "rgba(13,148,136,0.08)", borderWidth: 2, fill: true, tension: 0.3, pointRadius: 0, pointHoverRadius: 4 },
+          { label: "Original (no changes)", data: orig, borderColor: "#94a3b8", borderDash: [5, 5], backgroundColor: "transparent", borderWidth: 1.5, fill: false, tension: 0.3, pointRadius: 0 }
+        ];
+      } else if (CM === "split") {
+        datasets = [
+          { label: "Interest (Rs.)", data: rows.map(r => Math.round(r.interest)), backgroundColor: "rgba(251,146,60,0.75)", borderColor: "#f97316", borderWidth: 0.5 },
+          { label: "Principal (Rs.)", data: rows.map(r => Math.round(r.principal)), backgroundColor: "rgba(16,185,129,0.75)", borderColor: "#10b981", borderWidth: 0.5 }
+        ];
+        chartType = "bar"; xO = { stacked: true }; yO = { stacked: true };
+      } else {
+        datasets = [
+          { label: "Cum. Interest (Rs.L)", data: rows.map(r => Math.round(r.cumI / 100000)), borderColor: "#f97316", backgroundColor: "rgba(249,115,22,0.08)", fill: true, borderWidth: 2, tension: 0.3, pointRadius: 0 },
+          { label: "Cum. Principal (Rs.L)", data: rows.map(r => Math.round(r.cumP / 100000)), borderColor: "#10b981", backgroundColor: "rgba(16,185,129,0.08)", fill: true, borderWidth: 2, tension: 0.3, pointRadius: 0 }
+        ];
+      }
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+      const gridColor = isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.04)";
+      const tickColor = isDark ? "#94a3b8" : "#64748b";
+      chartInst = new Chart(ctx, {
+        type: chartType, data: { labels, datasets },
+        options: {
+          responsive: true, maintainAspectRatio: false, interaction: { mode: "index", intersect: false },
+          plugins: {
+            legend: { position: "top", labels: { font: { family: "Inter", size: 11 }, boxWidth: 10, padding: 12, color: tickColor } },
+            tooltip: {
+              backgroundColor: "rgba(15,23,42,0.92)", titleFont: { family: "Inter", size: 11 }, bodyFont: { family: "Inter", size: 11 }, padding: 8,
+              callbacks: { label: c => { const vv = c.parsed.y; return CM === "split" ? ` ${c.dataset.label}: Rs.${vv.toLocaleString("en-IN")}` : ` ${c.dataset.label}: Rs.${vv}L`; } }
+            }
+          },
+          scales: {
+            x: { ticks: { font: { family: "Inter", size: 10 }, maxTicksLimit: 14, maxRotation: 0, color: tickColor }, grid: { display: false }, ...xO },
+            y: { ticks: { font: { family: "Inter", size: 10 }, callback: vv => CM === "split" ? `Rs.${(vv / 1000).toFixed(0)}k` : `Rs.${vv}L`, color: tickColor }, grid: { color: gridColor }, ...yO }
+          }
+        }
+      });
+    }
+
+    // ══ SAVE CHART AS IMAGE ══
+    function saveChartImage() {
+      if (!chartInst) return toast("No chart to save", "err");
+      const canvas = document.getElementById("chart1");
+      // Create temp canvas with white/dark background for clean export
+      const tmp = document.createElement("canvas");
+      tmp.width = canvas.width; tmp.height = canvas.height;
+      const tctx = tmp.getContext("2d");
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+      tctx.fillStyle = isDark ? "#1e293b" : "#ffffff";
+      tctx.fillRect(0, 0, tmp.width, tmp.height);
+      tctx.drawImage(canvas, 0, 0);
+      const a = document.createElement("a");
+      const mode = CM === "balance" ? "balance" : CM === "split" ? "emi_split" : "cumulative";
+      a.download = `loan_chart_${mode}.png`;
+      a.href = tmp.toDataURL("image/png", 1.0);
+      a.click();
+      toast("Chart saved as PNG");
+    }
+
+    // ══ BEST TIME TO PREPAY INSIGHT ══
+    function renderInsight() {
+      const AMT = 100000; // simulate with Rs.1L
+      const now = NOW();
+      const futureRows = sched.filter(r => r.ds >= now);
+      if (futureRows.length < 2) { document.getElementById("insightCard").style.display = "none"; return; }
+      document.getElementById("insightCard").style.display = "";
+      const baseLast = sched[sched.length - 1];
+      const baseTotal = baseLast ? baseLast.cumI : 0;
+
+      // Simulate 4 time points: now, +6m, +12m, +24m
+      const points = [
+        { label: "This month", ds: futureRows[0].ds },
+        { label: "In 6 months", ds: futureRows[Math.min(5, futureRows.length - 1)].ds },
+        { label: "In 1 year", ds: futureRows[Math.min(11, futureRows.length - 1)].ds },
+        { label: "In 2 years", ds: futureRows[Math.min(23, futureRows.length - 1)].ds },
+      ].filter((p, i, arr) => i === 0 || p.ds !== arr[i - 1].ds);
+
+      const results = points.map(pt => {
+        const xPP = [{ id: 8000, date: pt.ds, principal: AMT, interest: 0 }];
+        const ws = buildSched(xPP);
+        const wLast = ws[ws.length - 1];
+        const saved = baseTotal - (wLast ? wLast.cumI : 0);
+        return { label: pt.label, ds: pt.ds, saved: Math.max(0, Math.round(saved)) };
+      });
+
+      // Best = highest saving (should always be "This month")
+      const maxSaved = Math.max(...results.map(r => r.saved));
+
+      let html = results.map(r => {
+        const isBest = r.saved === maxSaved && r.saved > 0;
+        return `<div class="insight-item ${isBest ? 'insight-best' : ''}">
+      <div class="il">${r.label}${isBest ? ' ★' : ''}</div>
+      <div class="iv">${fmtINR(r.saved)}</div>
+      <div class="is">interest saved on Rs.1L prepayment</div>
+    </div>`;
+      }).join("");
+      document.getElementById("insightRow").innerHTML = html;
+      document.getElementById("insightNote").textContent =
+        "Earlier prepayments save more because your outstanding balance is higher. The sooner you prepay, the more interest you avoid.";
+    }
+
+    // ══ WHAT-IF ══
+    function runWI() {
+      const amt = parseFloat(v("wiAmt")) || 0, dt = v("wiDate"), nr = parseFloat(v("wiRate")) || null;
+      if (!dt && !amt && !nr) return toast("Enter at least one value", "err");
+      const xPP = amt > 0 && dt ? [{ id: 9999, date: dt + "-15", principal: amt, interest: 0 }] : [];
+      const xRC = nr && dt ? [{ id: 9998, date: dt + "-01", rate: nr, note: "[Sim]" }] : [];
+      const ws = buildSched(xPP, xRC);
+      const al = sched[sched.length - 1], wl = ws[ws.length - 1];
+      const aEnd = al ? new Date(al.ds + "T00:00:00") : new Date(), wEnd = wl ? new Date(wl.ds + "T00:00:00") : new Date();
+      const mSaved = Math.round((aEnd - wEnd) / 2629800000), iSaved = (al ? al.cumI : 0) - (wl ? wl.cumI : 0);
+      const after = dt ? ws.find(r => r.ds.slice(0, 7) >= dt.slice(0, 7)) : null;
+      const tdym = NOWYM(); let wb = parseFloat(document.getElementById("loanAmount").value);
+      for (const r of ws) { if (r.ds.slice(0, 7) <= tdym) wb = r.close; else break; }
+      document.getElementById("wiPayoff").textContent = wEnd.toLocaleDateString("en-IN", { month: "short", year: "numeric" });
+      document.getElementById("wiMonths").textContent = mSaved > 0 ? `${mSaved} months earlier` : "No change";
+      document.getElementById("wiSaved").textContent = iSaved > 0 ? fmtINR(iSaved) : "Rs.0";
+      document.getElementById("wiBalAfter").textContent = after ? fmtINR(after.close) : fmtINR(wb);
+      document.getElementById("wiResult").classList.add("show");
+    }
+    function clearWI() {
+      document.getElementById("wiAmt").value = "500000"; document.getElementById("wiDate").value = "2026-03";
+      document.getElementById("wiRate").value = ""; document.getElementById("wiResult").classList.remove("show");
+    }
+
+    // ══ TABLE ══
+    function applyFilter() {
+      const f = v("fltView"), td = NOW(), tdym = NOWYM();
+      let rows = sched;
+      if (f === "future") rows = sched.filter(r => r.ds.slice(0, 7) >= tdym);
+      else if (f === "past") rows = sched.filter(r => r.ds < td);
+      else if (f === "events") rows = sched.filter(r => r.evN.length || r.ppEvs.length || r.feEvs.length);
+      renderTable(rows);
+    }
+    function renderTable(rows) {
+      let h = `<table><thead><tr><th>#</th><th>Date</th><th>Rate</th><th>Opening</th><th>EMI</th><th>Interest</th><th>Principal</th><th>Balance</th><th>Cum. Interest</th><th>Notes</th></tr></thead><tbody>`;
+      for (const r of rows) {
+        let cls = r.isPast ? "is-past" : "";
+        if (r.isToday) cls = "is-today"; else if (r.evN.length && !r.isPast) cls = "is-event";
+        const badges = [
+          ...r.evN.map(e => `<span class="pill pill-rate">${e.label}${e.note ? " — " + e.note : ""}</span>`),
+          ...r.ppEvs.map(p => `<span class="pill pill-prepay">Prepaid ${fmtINR(p.principal)}${p.interest ? " + int" : ""}${p.note ? " — " + p.note : ""}</span>`),
+          ...r.feEvs.map(f => `<span class="pill pill-fee">${f.desc}: ${fmtINR(f.amount)}</span>`),
+          r.isToday ? `<span class="pill pill-now">Current month</span>` : ""
+        ].filter(Boolean).join(" ");
+        h += `<tr class="${cls}" id="yr-${r.ds.slice(0, 4)}">
+      <td style="color:var(--muted)">${r.m}</td><td style="font-weight:500">${fmtD(r.ds)}</td>
+      <td>${r.rate.toFixed(2)}%</td><td>${fmtINR(r.open)}</td><td>${fmtINR(r.emi)}</td>
+      <td style="color:${r.isPast ? "inherit" : "#f97316"}">${fmtINR(r.interest)}</td>
+      <td style="color:${r.isPast ? "inherit" : "#10b981"}">${fmtINR(r.principal)}</td>
+      <td><strong>${fmtINR(r.close)}</strong></td>
+      <td style="color:var(--muted)">${fmtINR(r.cumI)}</td>
+      <td>${badges}</td></tr>`;
+        for (const pp of r.ppEvs) {
+          h += `<tr class="is-prepay"><td></td><td style="font-size:12px;font-style:italic">${fmtD(pp.date)}</td>
+        <td>—</td><td>${fmtINR(r.close + pp.principal)}</td><td>—</td>
+        <td>${pp.interest ? fmtINR(pp.interest) : "—"}</td>
+        <td style="color:#10b981;font-weight:600">${fmtINR(pp.principal)}</td>
+        <td><strong>${fmtINR(r.close)}</strong></td><td>—</td>
+        <td><span class="pill pill-prepay">Prepayment${pp.note ? " — " + pp.note : ""}</span></td></tr>`;
+        }
+      }
+      h += "</tbody></table>";
+      document.getElementById("tblContainer").innerHTML = h;
+    }
+    function jumpYear(y) { if (!y) return; const el = document.getElementById("yr-" + y.trim()); if (el) el.scrollIntoView({ behavior: "smooth", block: "center" }); }
+
+    // ══ YEARLY ══
+    function renderYearly() {
+      const d = {}, tdym = NOWYM();
+      for (const r of sched) {
+        const yr = r.ds.slice(0, 4);
+        if (!d[yr]) d[yr] = { n: 0, i: 0, p: 0, pp: 0, b: 0 };
+        d[yr].n++; d[yr].i += r.interest; d[yr].p += r.principal; d[yr].b = r.close;
+        for (const pp of r.ppEvs) d[yr].pp += pp.principal;
+      }
+      let h = `<table><thead><tr><th>Year</th><th>Months</th><th>Total Paid</th><th>Interest</th><th>Principal</th><th>Prepaid</th><th>Closing Balance</th><th>Interest %</th></tr></thead><tbody>`;
+      for (const [yr, x] of Object.entries(d)) {
+        const tot = x.i + x.p, ip = Math.round(x.i / tot * 100), past = yr < tdym.slice(0, 4), cur = yr === tdym.slice(0, 4);
+        h += `<tr class="${past ? "is-past" : ""} ${cur ? "is-today" : ""}">
+      <td><strong>${yr}</strong>${cur ? ` <span class="pill pill-now" style="font-size:10px">Current</span>` : ""}</td>
+      <td>${x.n}</td><td>${fmtINR(tot)}</td>
+      <td style="color:${past ? "inherit" : "#f97316"}">${fmtINR(x.i)}</td>
+      <td style="color:${past ? "inherit" : "#10b981"}">${fmtINR(x.p)}</td>
+      <td>${x.pp ? fmtINR(x.pp) : "—"}</td><td><strong>${fmtINR(x.b)}</strong></td>
+      <td><div style="display:flex;align-items:center;gap:6px">
+        <div style="flex:1;background:var(--border);border-radius:3px;height:8px;overflow:hidden;min-width:60px">
+          <div style="width:${ip}%;background:linear-gradient(90deg,#fb923c,#f97316);height:8px;border-radius:3px"></div>
+        </div><span style="font-size:11px;color:var(--muted)">${ip}%</span>
+      </div></td></tr>`;
+      }
+      h += "</tbody></table>";
+      document.getElementById("yrContainer").innerHTML = h;
+    }
+
+    // ══ TABS ══
+    function switchTab(tab, el) {
+      document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+      document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+      el.classList.add("active"); document.getElementById("view-" + tab).classList.add("active");
+    }
+
+    // ══ CSV ══
+    function exportCSV() {
+      const hdr = ["Month", "Date", "Rate%", "Opening", "EMI", "Interest", "Principal", "Balance", "CumInterest", "CumPrincipal", "Events"];
+      const rows = sched.map(r => [r.m, r.ds, r.rate, Math.round(r.open), Math.round(r.emi), Math.round(r.interest),
+      Math.round(r.principal), Math.round(r.close), Math.round(r.cumI), Math.round(r.cumP),
+      [...r.evN.map(e => e.label), ...r.ppEvs.map(p => `Prepaid ${p.principal}`), ...r.feEvs.map(f => f.desc)].join("; ")]);
+      const csv = [hdr, ...rows].map(r => r.join(",")).join("\n");
+      const a = document.createElement("a");
+      a.href = "data:text/csv;charset=utf-8," + encodeURIComponent(csv);
+      a.download = "loan_schedule.csv"; a.click();
+    }
+
+    // ══ TOAST ══
+    function toast(msg, type = "ok") {
+      const t = document.createElement("div");
+      t.style.cssText = `position:fixed;bottom:${isMob() ? '70px' : '20px'};right:16px;z-index:999;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:600;font-family:Inter,sans-serif;box-shadow:0 4px 12px rgba(0,0,0,.2);background:${type === "err" ? "#ef4444" : "#0d9488"};color:#fff;`;
+      t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 3000);
+    }
+
+    // ══ INIT ══
+    window.onload = () => {
+      initDark();
+      const loaded = loadStorage();
+      if (loaded) { syncMobFromDesktop(); renderLists(); recalculate(); }
+      else loadDefaults();
+    };
+  </script>
+</body>
+
+</html>
