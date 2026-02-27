@@ -123,7 +123,10 @@
     .hdr-title h1 {
       font-size: 16px;
       font-weight: 700;
+      white-space: nowrap;
     }
+
+
 
     .hdr-right {
       display: flex;
@@ -1037,9 +1040,10 @@
     /* DATA TOOLBAR */
     .data-bar {
       display: flex;
-      gap: 6px;
+      gap: 4px;
       align-items: center;
-      padding: 10px 16px 0;
+      padding: 10px 10px 0;
+      flex-wrap: nowrap;
     }
 
     .data-bar-label {
@@ -1208,13 +1212,51 @@
         font-weight: 700;
       }
 
-      .mob-sec-body {
+      /* .mob-sec-body {
         padding: 0 16px 16px;
+      } */
+
+      .mob-sec-body {
+        display: none;
       }
 
       .data-bar {
         flex-wrap: wrap;
       }
+
+      .hdr-badge .bv {
+        font-size: 10px;
+      }
+
+      .hdr-badge .bl {
+        font-size: 8px;
+      }
+
+      .hdr-badge {
+        padding: 3px 6px;
+      }
+
+      .dark-btn {
+        width: 26px;
+        height: 26px;
+        font-size: 12px;
+      }
+
+      .save-chart-btn {
+        padding: 3px 7px;
+        font-size: 10px;
+      }
+
+      .ct {
+        padding: 3px 7px;
+        font-size: 10px;
+      }
+
+      .chart-actions {
+        gap: 4px;
+      }
+
+
     }
   </style>
 </head>
@@ -1231,15 +1273,16 @@
         <div class="hdr-badge">
           <div class="bl">Next EMI</div>
           <div class="bv" id="hdrEmiDate">–</div>
-          <div class="bs" id="hdrEmiDays"></div>
+          <div class="bs" id="hdrEmiDays" style="display:none"></div>
         </div>
         <div class="hdr-badge">
           <div class="bl">Current Rate</div>
-          <div class="bv" id="hdrRate">–</div>
-          <div class="bs">p.a.</div>
+          <div class="bv"><span id="hdrRate"></span> <span style="font-size:9px;font-weight:400;opacity:.8;">p.a.</span>
+          </div>
         </div>
       </div>
-      <button class="dark-btn" onclick="toggleDark()" id="darkBtn" title="Toggle dark mode">&#9790;</button>
+
+
     </div>
   </header>
 
@@ -1249,9 +1292,10 @@
     <div class="sidebar" id="sidebar">
       <div class="data-bar">
         <span class="data-bar-label">Data:</span>
-        <button class="btn btn-outline" style="padding:4px 10px;font-size:11px;" onclick="exportJSON()">Export
+        <button class="btn btn-outline" style="padding:4px 10px;font-size:11px;white-space:nowrap"
+          onclick="exportJSON()">Export
           JSON</button>
-        <button class="btn btn-outline" style="padding:4px 10px;font-size:11px;"
+        <button class="btn btn-outline" style="padding:4px 10px;font-size:11px;white-space:nowrap"
           onclick="document.getElementById('importFile').click()">Import JSON</button>
         <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(event)">
         <button class="btn btn-ghost" style="color:var(--muted);" onclick="clearStorage()">Reset</button>
@@ -1341,6 +1385,28 @@
           <div class="ev-list" id="feList"></div>
         </div>
       </div>
+      <div class="ss" style="padding:12px 16px;">
+        <button class="btn btn-outline btn-full" onclick="toggleDark()" id="darkBtn" style="gap:8px;">
+          <svg id="iconMoon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+          </svg>
+          <svg id="iconSun" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+            <circle cx="12" cy="12" r="5" />
+            <line x1="12" y1="1" x2="12" y2="3" />
+            <line x1="12" y1="21" x2="12" y2="23" />
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+            <line x1="1" y1="12" x2="3" y2="12" />
+            <line x1="21" y1="12" x2="23" y2="12" />
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+          </svg>
+          <span id="darkLabel">Dark Mode</span>
+        </button>
+      </div>
+
     </div><!-- /sidebar -->
 
     <!-- MAIN -->
@@ -1480,21 +1546,24 @@
 
         <div class="mob-sec">
           <div class="mob-sec-hdr" onclick="toggleMobSec(this)">
-            <h3>Data</h3><span>▼</span>
+            <h3>Data</h3><span>▶</span>
           </div>
           <div class="mob-sec-body" style="padding-top:10px;">
             <div style="display:flex;gap:8px;flex-wrap:wrap;">
               <button class="btn btn-outline btn-full" onclick="exportJSON()">Export JSON</button>
               <button class="btn btn-outline btn-full" onclick="document.getElementById('importFile').click()">Import
                 JSON</button>
-              <button class="btn btn-ghost btn-full" onclick="clearStorage()">Reset All Data</button>
+              <button class="btn btn-outline btn-full" onclick="clearStorage()"
+                style="color:var(--danger);border-color:var(--danger);">Reset All Data</button>
+              </button>
+
             </div>
           </div>
         </div>
 
         <div class="mob-sec">
           <div class="mob-sec-hdr" onclick="toggleMobSec(this)">
-            <h3>Loan Details</h3><span>▼</span>
+            <h3>Loan Details</h3><span>▶</span>
           </div>
           <div class="mob-sec-body">
             <div class="form-row">
@@ -1519,7 +1588,7 @@
 
         <div class="mob-sec">
           <div class="mob-sec-hdr" onclick="toggleMobSec(this)">
-            <h3>Rate Changes</h3><span>▼</span>
+            <h3>Rate Changes</h3><span>▶</span>
           </div>
           <div class="mob-sec-body">
             <div class="form-row">
@@ -1537,7 +1606,7 @@
 
         <div class="mob-sec">
           <div class="mob-sec-hdr" onclick="toggleMobSec(this)">
-            <h3>Prepayments</h3><span>▼</span>
+            <h3>Prepayments</h3><span>▶</span>
           </div>
           <div class="mob-sec-body">
             <div class="form-row">
@@ -1553,9 +1622,9 @@
           </div>
         </div>
 
-        <div class="mob-sec" style="margin-bottom:80px;">
+        <div class="mob-sec">
           <div class="mob-sec-hdr" onclick="toggleMobSec(this)">
-            <h3>Fees & Charges</h3><span>▼</span>
+            <h3>Fees & Charges</h3><span>▶</span>
           </div>
           <div class="mob-sec-body">
             <div class="form-row">
@@ -1569,6 +1638,33 @@
             <div class="ev-list" id="m_feList"></div>
           </div>
         </div>
+        <div class="mob-sec">
+          <div class="mob-sec-hdr" onclick="toggleMobSec(this)">
+            <h3>Appearance</h3><span>▶</span>
+          </div>
+          <div class="mob-sec-body" style="padding-top:10px;">
+            <button class="btn btn-outline btn-full" onclick="toggleDark()" style="gap:8px;">
+              <svg id="iconMoon2" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+              </svg>
+              <svg id="iconSun2" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+                <circle cx="12" cy="12" r="5" />
+                <line x1="12" y1="1" x2="12" y2="3" />
+                <line x1="12" y1="21" x2="12" y2="23" />
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                <line x1="1" y1="12" x2="3" y2="12" />
+                <line x1="21" y1="12" x2="23" y2="12" />
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+              </svg>
+              <span id="darkLabel2">Dark Mode</span>
+            </button>
+          </div>
+        </div>
+
 
       </div><!-- /pg-settings -->
 
@@ -1577,8 +1673,8 @@
 
   <nav class="mob-nav">
     <button class="mob-nav-btn active" onclick="mobNav('dashboard',this)"><span
-        class="icon">&#9783;</span>Dashboard</button>
-    <button class="mob-nav-btn" onclick="mobNav('schedule',this)"><span class="icon">&#128203;</span>Schedule</button>
+        class="icon">&#8862;</span>Dashboard</button>
+    <button class="mob-nav-btn" onclick="mobNav('schedule',this)"><span class="icon">&#9782;</span>Schedule</button>
     <button class="mob-nav-btn" onclick="mobNav('settings',this)"><span class="icon">&#9881;</span>Settings</button>
   </nav>
 
@@ -1600,15 +1696,27 @@
       const html = document.documentElement;
       const isDark = html.getAttribute("data-theme") === "dark";
       html.setAttribute("data-theme", isDark ? "light" : "dark");
-      document.getElementById("darkBtn").textContent = isDark ? "☾" : "☀";
+      syncDarkIcons(!isDark);
       localStorage.setItem("hlm_dark", isDark ? "0" : "1");
+    }
+    function syncDarkIcons(isDark) {
+      const show = id => { const el = document.getElementById(id); if (el) el.style.display = ""; };
+      const hide = id => { const el = document.getElementById(id); if (el) el.style.display = "none"; };
+      if (isDark) { hide("iconMoon"); show("iconSun"); hide("iconMoon2"); show("iconSun2"); }
+      else { show("iconMoon"); hide("iconSun"); show("iconMoon2"); hide("iconSun2"); }
+      const lbl = document.getElementById("darkLabel");
+      const lbl2 = document.getElementById("darkLabel2");
+      if (lbl) lbl.textContent = isDark ? "Light Mode" : "Dark Mode";
+      if (lbl2) lbl2.textContent = isDark ? "Light Mode" : "Dark Mode";
     }
     function initDark() {
       if (localStorage.getItem("hlm_dark") === "1") {
         document.documentElement.setAttribute("data-theme", "dark");
-        document.getElementById("darkBtn").textContent = "☀";
+        syncDarkIcons(true);
       }
     }
+
+
 
     // ══ SIDEBAR ══
     function toggleSidebar() { document.getElementById("sidebar").classList.toggle("collapsed"); }
@@ -1628,10 +1736,11 @@
     }
     function toggleMobSec(hdr) {
       const body = hdr.nextElementSibling, ch = hdr.querySelector("span:last-child");
-      const hidden = body.style.display === "none";
-      body.style.display = hidden ? "" : "none";
+      const hidden = body.style.display === "none" || body.style.display === "";
+      body.style.display = hidden ? "block" : "none";
       ch.textContent = hidden ? "▼" : "▶";
     }
+
 
     // ══ LOCALSTORAGE ══
     const LS_KEY = "hlm_data_v1";
@@ -2136,6 +2245,7 @@
       }
       h += "</tbody></table>";
       document.getElementById("tblContainer").innerHTML = h;
+
     }
     function jumpYear(y) { if (!y) return; const el = document.getElementById("yr-" + y.trim()); if (el) el.scrollIntoView({ behavior: "smooth", block: "center" }); }
 
