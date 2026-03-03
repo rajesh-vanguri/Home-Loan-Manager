@@ -17,7 +17,7 @@ Mobile-friendly with bottom navigation
 ## How to use
 1. Download `index.html`
 2. Open in any browser — no setup needed
-3. Or visit the live version: [Home Loan Manager](https://rajesh.vanguri.github.io/home-loan-manager/home_loan_manager.html)
+3. Or visit the live version: [Home Loan Manager](https://rajesh-vanguri.github.io/Home-Loan-Manager/)
 
 ## Built with
 Vanilla HTML, CSS, JavaScript
