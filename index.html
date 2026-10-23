@@ -554,7 +554,7 @@
           ${list(PP, "pp", x => `<div class="ev-row"><b>${fmtINR(x.principal)}</b><span>${fmtD(x.date)}</span></div>${x.interest ? `<p>+ ${fmtINR(x.interest)} interest</p>` : ""}${x.note ? `<p>${esc(x.note)}</p>` : ""}`)}</div>
         <div class="d-sec"><h2>Fees &amp; charges <span class="count">${FE.length}</span></h2>
           ${list(FE, "fe", x => `<div class="ev-row"><b>${fmtINR(x.amount)}</b><span>${fmtD(x.date)}</span></div><p>${esc(x.desc)}</p>`)}</div>
-        <p class="hint">Read-only. To add a prepayment, rate change or fee, edit <code>CONFIG</code> in <code>index.html</code> and push.</p>`;
+        <p class="hint">Read-only. To add a prepayment, rate change or fee, edit <code>config.js</code> file and push.</p>`;
     }
 
     /* ═════════════════════════ EMI ENGINE ═════════════════════════ */
