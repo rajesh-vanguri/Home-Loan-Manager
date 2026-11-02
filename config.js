@@ -22,7 +22,8 @@ const CONFIG = {
     { date: "2025-05-01", rate: 8.35, note: "Repo rate cut by RBI" },
     { date: "2025-07-01", rate: 7.85, note: "Repo rate cut by RBI" },
     { date: "2026-01-01", rate: 7.60, note: "Repo rate cut by RBI" },
-    { date: "2026-02-01", rate: 7.20, note: "Manual conversion requested" }
+    { date: "2026-02-01", rate: 7.20, note: "Manual conversion requested" },
+	 { date: "2026-11-01", rate: 7.45, note: "Repo rate increase by RBI" }
   ],
 
   prepayments: [
